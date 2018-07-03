@@ -1,0 +1,9 @@
+[package]
+name = "meiro_server"
+version = "0.1.0"
+authors = ["Kazuki Hanai <cs16075@s.inf.shizuoka.ac.jp>"]
+
+[dependencies]
+websocket = "0.20.2"
+rocket = "*"
+rocket_codegen = "*"
