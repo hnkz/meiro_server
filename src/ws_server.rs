@@ -5,7 +5,7 @@ pub fn start_ws_server() {
 	let mut game = Game::new(4);
     let server = Server::bind("127.0.0.1:2794").unwrap();
 
-	// state of wait
+	// wait state
 	for request in server.filter_map(Result::ok) {
 		if !request.protocols().contains(&"rust-websocket".to_string()) {
 			request.reject().unwrap();
@@ -23,6 +23,6 @@ pub fn start_ws_server() {
 		}
 	}
 
-	// state of start
+	// start state
 	game.start();
 }
