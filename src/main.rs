@@ -13,6 +13,6 @@ fn hello(name: String, age: u8) -> String {
 }
 
 fn main() {
-    ws_server::init_ws_server();
+    ws_server::start_ws_server();
     rocket::ignite().mount("/", routes![hello]).launch();
 }
