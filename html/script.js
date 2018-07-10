@@ -13,7 +13,15 @@ function sendData() {
     var comment = elm.value;
     elm.value = "";
 
-    wsSocket.send(comment);
+    let message =
+        `{
+            "player": {
+                "player01": "${comment}",
+                "shizutaro": [30, 3111, 212.0021, 4.8888]
+            }
+        }`;
+
+    wsSocket.send(message);
 }
 
 function onMessage(event) {

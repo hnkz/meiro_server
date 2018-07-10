@@ -7,3 +7,4 @@ authors = ["Kazuki Hanai <cs16075@s.inf.shizuoka.ac.jp>"]
 websocket = "0.20.2"
 rocket = "*"
 rocket_codegen = "*"
+serde_json = "1.0"

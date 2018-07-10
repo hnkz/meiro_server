@@ -1,8 +1,11 @@
 use websocket::sync::Server;
 use game::Game;
+use std::sync::atomic::{AtomicBool, Ordering};
+
+const MAX_USER: usize = 1;
 
 pub fn start_ws_server() {
-	let mut game = Game::new(4);
+	let mut game = Game::new(MAX_USER as i32);
     let server = Server::bind("127.0.0.1:2794").unwrap();
 
 	// wait state
@@ -18,7 +21,7 @@ pub fn start_ws_server() {
 
 		game.add_user(client);
 
-		if game.get_user_count() == 4 {
+		if game.get_user_count() == MAX_USER {
 			break;
 		}
 	}
