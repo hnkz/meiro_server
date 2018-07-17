@@ -10,11 +10,11 @@ pub enum ItemType {
 #[derive(Debug)]
 pub struct Item {
     item_type: ItemType,
-    pos: (i32, i32, i32)
+    pos: (f64, f64, f64)
 }
 
 impl Item {
-    pub fn new(item_type: ItemType, pos: (i32, i32, i32)) -> Item {
+    pub fn new(item_type: ItemType, pos: (f64, f64, f64)) -> Item {
         Item {
             item_type: item_type,
             pos: pos
@@ -23,22 +23,22 @@ impl Item {
 
     pub fn init_items() -> Vec<Item> {
         vec![
-            Item {
-                item_type: ItemType::GOAL,
-                pos: (0, 0, 0)
-            },
-            Item {
-                item_type: ItemType::ITEM1,
-                pos: (0, 0, 0)
-            },
-            Item {
-                item_type: ItemType::ITEM2,
-                pos: (0, 0, 0)
-            },
-            Item {
-                item_type: ItemType::ITEM3,
-                pos: (0, 0, 0)
-            },
+            Item::new(
+                ItemType::GOAL,
+                (0f64, 0f64, 0f64)
+            ),
+            Item::new(
+                ItemType::ITEM1,
+                (0f64, 0f64, 0f64)
+            ),
+            Item::new(
+                ItemType::ITEM2,
+                (0f64, 0f64, 0f64)
+            ),
+            Item::new(
+                ItemType::ITEM3,
+                (0f64, 0f64, 0f64)
+            ),
         ]
     }
 }

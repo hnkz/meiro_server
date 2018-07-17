@@ -21,14 +21,19 @@ impl Game {
 
     pub fn add_user(&mut self, stream: Client<TcpStream>) {
         // set non blocking
-        stream.set_nonblocking(true);
+        match stream.set_nonblocking(true) {
+            Ok(_) => {},
+            Err(err) => {
+                println!("stream error: {}", err);
+            }
+        };
 
         let user_count = self.get_user_count();
         self.users.push(User::new(stream, user_count));
         self.check_closed();
     }
 
-    pub fn set_user_pos(&mut self, i: usize, pos: (i32, i32, i32)) {
+    pub fn set_user_pos(&mut self, i: usize, pos: (f64, f64, f64)) {
         self.users[i as usize].set_pos(pos);
     }
 
@@ -36,9 +41,14 @@ impl Game {
         self.map.remove_item(i);
     }
 
-    pub fn set_user_nonblocking(&mut self, flag: bool) {
+    fn set_user_nonblocking(&mut self, flag: bool) {
         for i in 0..self.max_users {
-            self.users[i as usize].get_stream_mut().set_nonblocking(flag);
+            match self.users[i as usize].get_stream_mut().set_nonblocking(flag) {
+                Ok(_) => {},
+                Err(err) => {
+                    println!("set_nonblocking error : {}", err);
+                }   
+            };
         }
     }
 
@@ -63,9 +73,12 @@ impl Game {
         }
         json.push_str("}\n");
 
-        println!("{}", json);
-
-        self.users[i].get_stream_mut().send_message(&OwnedMessage::Text(json));
+        match self.users[i].get_stream_mut().send_message(&OwnedMessage::Text(json)) {
+            Ok(_) => {},
+            Err(err) => {
+                println!("ws send_message error: {}", err);
+            }   
+        };
     }
 
     fn check_closed(&mut self) {

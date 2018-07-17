@@ -2,7 +2,7 @@
 
 console.log("load complete");
 
-var wsSocket = new WebSocket("ws://127.0.0.1:2794", "rust-websocket");
+var wsSocket = new WebSocket("ws://192.168.0.21:2794", "rust-websocket");
 wsSocket.onmessage = onMessage;
 wsSocket.onopen = onOpen;
 wsSocket.onerror = onError;

@@ -4,9 +4,9 @@ use std::net::TcpStream;
 pub struct User {
     stream: Client<TcpStream>,
     name: String,
-    x: i32,
-    y: i32,
-    z: i32
+    x: f64,
+    y: f64,
+    z: f64
 }
 
 impl User {
@@ -14,9 +14,9 @@ impl User {
         User {
             stream: stream,
             name: format!("player{}", i),
-            x: 0i32,
-            y: 0i32,
-            z: 0i32
+            x: 0f64,
+            y: 4f64,
+            z: 0f64
         }
     }
 
@@ -24,7 +24,7 @@ impl User {
         &mut self.stream
     }
 
-    pub fn set_pos(&mut self, pos: (i32, i32, i32)) {
+    pub fn set_pos(&mut self, pos: (f64, f64, f64)) {
         self.x = pos.0;
         self.y = pos.1;
         self.z = pos.2;

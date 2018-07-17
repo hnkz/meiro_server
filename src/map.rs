@@ -5,31 +5,31 @@ use item::Item;
 
 #[derive(Debug)]
 pub struct Map {
-    wall: Vec<(i32, i32, i32)>,
+    wall: Vec<(f64, f64, f64)>,
     items: Vec<Item>
 }
 
 impl Map {
     pub fn new() -> Map {
         let wall = Map::load_file("map.csv");
-        let mut items = Item::init_items();
+        let items = Item::init_items();
         Map {
             wall: wall,
             items: items
         }
     }
 
-    fn load_file(filename: &str) -> Vec<(i32, i32, i32)> {
+    fn load_file(filename: &str) -> Vec<(f64, f64, f64)> {
         let f = File::open(filename).expect("cannnot open file");
         let reader = BufReader::new(f);
 
         let mut wall = Vec::new();
         for line in reader.lines().map(|l| l.unwrap()) {
-            let mut points = (0i32, 0i32, 0i32);
+            let mut points = (0f64, 0f64, 0f64);
             let mut splits = line.split(',');
-            points.0 = splits.next().unwrap().parse::<i32>().unwrap();
-            points.1 = splits.next().unwrap().parse::<i32>().unwrap();
-            points.2 = splits.next().unwrap().parse::<i32>().unwrap();
+            points.0 = splits.next().unwrap().parse::<f64>().unwrap();
+            points.1 = splits.next().unwrap().parse::<f64>().unwrap();
+            points.2 = splits.next().unwrap().parse::<f64>().unwrap();
 
             wall.push(points);
         }
@@ -63,7 +63,7 @@ impl ToString for Map {
         }
         json.pop();
         json.pop();
-        json.push_str("\n],\n");
+        json.push_str("\n]\n");
 
         json
     }
