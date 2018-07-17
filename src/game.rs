@@ -28,8 +28,8 @@ impl Game {
         self.check_closed();
     }
 
-    pub fn set_user_pos(&mut self, i: usize, ) {
-        
+    pub fn set_user_pos(&mut self, i: usize, pos: (i32, i32, i32)) {
+        self.users[i as usize].set_pos(pos);
     }
 
     pub fn set_user_nonblocking(&mut self, flag: bool) {

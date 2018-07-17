@@ -2,8 +2,10 @@ use websocket::sync::Server;
 use game::Game;
 use std::thread;
 use std::sync::{Arc, Mutex};
+use serde_json::Value;
+use websocket::OwnedMessage;
 
-const MAX_USER: usize = 2;
+const MAX_USER: usize = 1;
 
 pub fn start_ws_server() {
 	let game = Arc::new(Mutex::new(Game::new(MAX_USER as i32)));
@@ -31,14 +33,6 @@ pub fn start_ws_server() {
 	// start state
 	let mut th = Vec::new();
 	for i in 0..MAX_USER {
-		// match game.lock() {
-		// 	Ok(mut game) => {
-		// 		game.set_user_nonblocking(false);
-		// 	},
-		// 	Err(e) => {
-		// 		println!("{}", e);
-		// 	}
-		// };
 		game.lock().unwrap().send_json(i, false, true, true);
 
 		let g = game.clone();
@@ -54,13 +48,30 @@ pub fn start_ws_server() {
 							Err(_err) => {
 								continue;
 							}
-						};
+						}
 					},
 					Err(e) => {
 						println!("thread lock error: {}", e);
+						continue;
 					}
 				};
 
+				println!("{:?}", raw);
+
+				let message = match raw {
+                    OwnedMessage::Text(message) => message,
+                    _ => continue
+                };
+
+                let v: Value = serde_json::from_str(&message).expect("json parse error");
+				match g.lock() {
+					Ok(mut g) => {
+						g.set_user_pos(i, (v["pos"][0].as_i64().unwrap() as i32, v["pos"][1].as_i64().unwrap() as i32, v["pos"][2].as_i64().unwrap() as i32));
+					},
+					Err(e) => {
+						println!("{}", e);
+					}
+				};
 				match g.lock() {
 					Ok(mut g) => {
 						g.send_json(i, false, true, true);

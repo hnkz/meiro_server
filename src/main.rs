@@ -7,12 +7,13 @@ extern crate meiro_server;
 
 use meiro_server::ws_server;
 use std::thread;
+use std::sync::{Arc, Mutex};
+
+// static status: Arc<Mutex<bool>> = Arc::new(Mutex::new(true));
 
 static status: bool = true;
-
 #[get("/status")]
 fn get_status() -> String {
-    // format!("{}", status.load(Ordering::Relaxed))
     format!("{}", status)
 }
 

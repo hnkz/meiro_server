@@ -21,7 +21,7 @@ function sendData() {
             }
         }`;
 
-    wsSocket.send(message);
+    wsSocket.send(comment);
 }
 
 function onMessage(event) {
