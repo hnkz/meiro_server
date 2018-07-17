@@ -56,17 +56,26 @@ pub fn start_ws_server() {
 					}
 				};
 
-				println!("{:?}", raw);
-
 				let message = match raw {
                     OwnedMessage::Text(message) => message,
                     _ => continue
                 };
 
                 let v: Value = serde_json::from_str(&message).expect("json parse error");
+				let mut item_flag = false;
 				match g.lock() {
 					Ok(mut g) => {
 						g.set_user_pos(i, (v["pos"][0].as_i64().unwrap() as i32, v["pos"][1].as_i64().unwrap() as i32, v["pos"][2].as_i64().unwrap() as i32));
+
+						match v.get("get") {
+							Some(get) => {
+								item_flag = true;
+								g.remove_item(get.as_i64().unwrap() as usize);
+							},
+							None => {
+
+							}
+						};
 					},
 					Err(e) => {
 						println!("{}", e);
@@ -74,7 +83,7 @@ pub fn start_ws_server() {
 				};
 				match g.lock() {
 					Ok(mut g) => {
-						g.send_json(i, false, true, true);
+						g.send_json(i, false, true, item_flag);
 					},
 					Err(e) => {
 						println!("{}", e);

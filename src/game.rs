@@ -32,6 +32,10 @@ impl Game {
         self.users[i as usize].set_pos(pos);
     }
 
+    pub fn remove_item(&mut self, i: usize) {
+        self.map.remove_item(i);
+    }
+
     pub fn set_user_nonblocking(&mut self, flag: bool) {
         for i in 0..self.max_users {
             self.users[i as usize].get_stream_mut().set_nonblocking(flag);
@@ -40,17 +44,19 @@ impl Game {
 
     pub fn send_json(&mut self, i: usize, map: bool, pos: bool, item: bool) {
         let mut json = "{\n".to_string();
-        json.push_str(format!("\"id\": {}, \n", i).as_str());
+        json.push_str(format!("\"id\": {} \n", i).as_str());
 
         if map {
             json.push_str(self.map.to_string().as_str());
         }
         if pos {
-            json.push_str("\"player\": [");
+            json.push_str(",\"player\": [");
             for i in 0..self.max_users {
                 json.push_str(self.users[i as usize].to_string().as_str());
+                json.push_str(",");
             }
-            json.push_str("],\n");
+            json.pop();
+            json.push_str("]\n");
         }
         if item {
             json.push_str(self.map.item_to_string().as_str());

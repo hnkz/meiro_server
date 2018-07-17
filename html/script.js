@@ -11,16 +11,6 @@ wsSocket.onclose = onClose;
 function sendData() {
     var elm = document.getElementById("comment");
     var comment = elm.value;
-    elm.value = "";
-
-    let message =
-        `{
-            "player": {
-                "player01": "${comment}",
-                "shizutaro": [30, 3111, 212.0021, 4.8888]
-            }
-        }`;
-
     wsSocket.send(comment);
 }
 

@@ -38,21 +38,26 @@ impl Map {
     }
 
     pub fn item_to_string(&self) -> String {
-        let mut json = "\"item\": [\n".to_string();
+        let mut json = ",\"item\": [\n".to_string();
         for item in &self.items {
             json.push_str(item.to_string().as_str());
             json.push_str(",");
         }
-        json.push_str("],\n");
+        json.pop();
+        json.push_str("]\n");
 
         json
+    }
+
+    pub fn remove_item(&mut self, i: usize) {
+        self.items.remove(i);
     }
 }
 
 impl ToString for Map {
     #[inline]
     fn to_string(&self) -> String {
-        let mut json = "\"map\": [\n".to_string();
+        let mut json = ",\"map\": [\n".to_string();
         for vec in &self.wall {
             json.push_str(format!("[{},{},{}], ", vec.0, vec.1, vec.2).as_str());
         }
