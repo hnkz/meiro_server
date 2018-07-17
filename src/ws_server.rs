@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex};
 use serde_json::Value;
 use websocket::OwnedMessage;
 
-const MAX_USER: usize = 1;
+const MAX_USER: usize = 2;
 
 pub fn start_ws_server() {
 	let game = Arc::new(Mutex::new(Game::new(MAX_USER as i32)));

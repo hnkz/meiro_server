@@ -40,6 +40,8 @@ impl Game {
 
     pub fn send_json(&mut self, i: usize, map: bool, pos: bool, item: bool) {
         let mut json = "{\n".to_string();
+        json.push_str(format!("\"id\": {}, \n", i).as_str());
+
         if map {
             json.push_str(self.map.to_string().as_str());
         }
