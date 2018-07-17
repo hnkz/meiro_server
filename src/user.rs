@@ -3,22 +3,31 @@ use std::net::TcpStream;
 
 pub struct User {
     stream: Client<TcpStream>,
-    x: i32,
-    y: i32,
-    z: i32
+    name: String,
+    x: f64,
+    y: f64,
+    z: f64
 }
 
 impl User {
-    pub fn new(stream: Client<TcpStream>) -> User {
+    pub fn new(stream: Client<TcpStream>, i: usize) -> User {
         User {
             stream: stream,
-            x: 0,
-            y: 0,
-            z: 0
+            name: format!("player{}", i),
+            x: 0f64,
+            y: 0f64,
+            z: 0f64
         }
     }
 
     pub fn get_stream_mut(&mut self) -> &mut Client<TcpStream> {
         &mut self.stream
+    }
+}
+
+impl ToString for User {
+    #[inline]
+    fn to_string(&self) -> String {
+        format!("{{\"name\": \"{}\", \"x\": {}, \"y\": {}, \"z\": {} }}", self.name, self.x, self.y, self.z)
     }
 }

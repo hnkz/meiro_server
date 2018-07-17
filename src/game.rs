@@ -3,7 +3,6 @@ use websocket::OwnedMessage;
 use std::net::TcpStream;
 use user::User;
 use map::Map;
-use serde_json::{Value, Error};
 
 pub struct Game {
     max_users: i32,
@@ -24,11 +23,44 @@ impl Game {
         // set non blocking
         stream.set_nonblocking(true);
 
-        self.users.push(User::new(stream));
+        let user_count = self.get_user_count();
+        self.users.push(User::new(stream, user_count));
         self.check_closed();
     }
 
-    pub fn check_closed(&mut self) {
+    pub fn set_user_pos(&mut self, i: usize, ) {
+        
+    }
+
+    pub fn set_user_nonblocking(&mut self, flag: bool) {
+        for i in 0..self.max_users {
+            self.users[i as usize].get_stream_mut().set_nonblocking(flag);
+        }
+    }
+
+    pub fn send_json(&mut self, i: usize, map: bool, pos: bool, item: bool) {
+        let mut json = "{\n".to_string();
+        if map {
+            json.push_str(self.map.to_string().as_str());
+        }
+        if pos {
+            json.push_str("\"player\": [");
+            for i in 0..self.max_users {
+                json.push_str(self.users[i as usize].to_string().as_str());
+            }
+            json.push_str("],\n");
+        }
+        if item {
+            json.push_str(self.map.item_to_string().as_str());
+        }
+        json.push_str("}\n");
+
+        println!("{}", json);
+
+        self.users[i].get_stream_mut().send_message(&OwnedMessage::Text(json));
+    }
+
+    fn check_closed(&mut self) {
         let mut i = 0i32;
         for _ in 0..self.users.len() {
             println!("{}", i);
@@ -54,36 +86,8 @@ impl Game {
         }
     }
 
-    pub fn start(&mut self) {
-        // non blocking & マップ送信
-        for i in 0..self.users.len() {
-            self.users[i].get_stream_mut().set_nonblocking(false);
-            self.users[i].get_stream_mut().send_message(&OwnedMessage::Text(self.map.to_string()));
-        }
-
-        // main
-        loop {
-            for i in 0..self.users.len() {
-                let mut raw = match self.users[i].get_stream_mut().recv_message() {
-                    Ok(raw) => raw,
-                    Err(err) => {
-                        println!("message err: {}", err);
-                        continue;
-                    }
-                };
-
-                let message = match raw {
-                    OwnedMessage::Text(message) => message,
-                    _ => continue
-                };
-
-                let v: Value = serde_json::from_str(&message).expect("json parse error");
-
-                for j in 0..self.users.len() {
-                    self.users[j].get_stream_mut().send_message(&OwnedMessage::Text(v["player"]["player01"].to_string()));
-                }
-            }
-        }
+    pub fn get_user(&mut self, i: usize) -> &mut User {
+        &mut self.users[i]
     }
 
     pub fn get_user_count(&self) -> usize {
