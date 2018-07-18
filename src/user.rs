@@ -1,5 +1,6 @@
 use websocket::sync::Client;
 use std::net::TcpStream;
+use websocket::OwnedMessage;
 
 pub struct User {
     stream: Client<TcpStream>,
@@ -20,14 +21,59 @@ impl User {
         }
     }
 
-    pub fn get_stream_mut(&mut self) -> &mut Client<TcpStream> {
-        &mut self.stream
+    pub fn recv_message(&mut self) -> String {
+        let raw = match self.stream.recv_message() {
+            Ok(raw) => {
+                raw
+            },
+            Err(_err) => {
+                // println!("recv_message error: {}", err);
+                return "".to_string()
+            }
+        };
+
+        let message = match raw {
+            OwnedMessage::Text(message) => message,
+            _ => "".to_string()
+        };
+
+        message
+    }
+
+    pub fn send_message(&mut self, message: String) {
+        match self.stream.send_message(&OwnedMessage::Text(message)) {
+            Ok(_) => {},
+            Err(err) => {
+                println!("ws send_message error: {}", err);
+            }   
+        };
     }
 
     pub fn set_pos(&mut self, pos: (f64, f64, f64)) {
         self.x = pos.0;
         self.y = pos.1;
         self.z = pos.2;
+    }
+
+    pub fn is_closed(&mut self) -> bool {
+        let message = match self.stream.recv_message() {
+            Ok(message) => message,
+            Err(err) => {
+                println!("message err: {}", err);
+                return false;
+            }    
+        };
+
+        match message {
+            OwnedMessage::Close(_) => {
+                let message = OwnedMessage::Close(None);
+                self.stream.send_message(&message).unwrap();
+                return true;
+            }
+            _ => {},
+        }
+
+        return false;
     }
 }
 

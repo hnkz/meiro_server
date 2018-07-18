@@ -25,19 +25,19 @@ impl Item {
         vec![
             Item::new(
                 ItemType::GOAL,
-                (0f64, 0f64, 0f64)
+                (10f64, 4f64, 0f64)
             ),
             Item::new(
                 ItemType::ITEM1,
-                (0f64, 0f64, 0f64)
+                (-10f64, 4f64, 0f64)
             ),
             Item::new(
                 ItemType::ITEM2,
-                (0f64, 0f64, 0f64)
+                (0f64, 4f64, 10f64)
             ),
             Item::new(
                 ItemType::ITEM3,
-                (0f64, 0f64, 0f64)
+                (0f64, 4f64, -10f64)
             ),
         ]
     }

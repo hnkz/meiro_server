@@ -5,18 +5,26 @@ use item::Item;
 
 #[derive(Debug)]
 pub struct Map {
+    width: i32,
+    height: i32,
     wall: Vec<(f64, f64, f64)>,
     items: Vec<Item>
 }
 
 impl Map {
-    pub fn new() -> Map {
+    pub fn new(width: i32, height: i32) -> Map {
         let wall = Map::load_file("map.csv");
         let items = Item::init_items();
         Map {
+            width: width,
+            height: height,
             wall: wall,
             items: items
         }
+    }
+
+    fn create_map(&mut self) {
+
     }
 
     fn load_file(filename: &str) -> Vec<(f64, f64, f64)> {
