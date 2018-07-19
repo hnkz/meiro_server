@@ -16,6 +16,7 @@ lazy_static! {
     static ref SERVER_STATUS: Arc<Mutex<bool>> = Arc::new(Mutex::new(true));
 }
 
+// http://localhost:8000/status
 #[get("/status")]
 fn get_status() -> String {
     let status = match SERVER_STATUS.lock() {
@@ -31,7 +32,9 @@ fn get_status() -> String {
 
 fn main() {
     thread::spawn(move || {
+        // Web サーバ起動
         rocket::ignite().mount("/", routes![get_status]).launch();
     });
+        // WebSocket サーバ起動
         ws_server::start_ws_server(SERVER_STATUS.clone());
 }

@@ -6,7 +6,7 @@ const MAX_USER: usize = 2;
 
 pub fn start_ws_server(status: Arc<Mutex<bool>>) {
 	let game = Arc::new(Mutex::new(Game::new(MAX_USER)));
-	
+
 	// wait state
 	let mut status = status.lock().unwrap();
 	*status = match game.lock() {
@@ -22,15 +22,6 @@ pub fn start_ws_server(status: Arc<Mutex<bool>>) {
 	// start state
 	let mut th = Vec::new();
 	for i in 0..MAX_USER {
-		match game.lock() {
-			Ok(mut game) => {
-				game.send_json(i, true, true, true);
-			},
-			Err(_err) => {
-
-			}
-		};
-
 		let g = game.clone();
 		th.push(thread::spawn(move || {
 		    // loop of main game

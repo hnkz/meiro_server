@@ -49,12 +49,14 @@ impl User {
         };
     }
 
+    // set user's position
     pub fn set_pos(&mut self, pos: (f64, f64, f64)) {
         self.x = pos.0;
         self.y = pos.1;
         self.z = pos.2;
     }
 
+    // User's connection is closed ?
     pub fn is_closed(&mut self) -> bool {
         let message = match self.stream.recv_message() {
             Ok(message) => message,

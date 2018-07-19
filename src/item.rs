@@ -25,19 +25,19 @@ impl Item {
         vec![
             Item::new(
                 ItemType::GOAL,
-                (10f64, 4f64, 0f64)
+                (142f64, 4f64, -23f64)
             ),
             Item::new(
                 ItemType::ITEM1,
-                (-10f64, 4f64, 0f64)
+                (58f64, 4f64, -2f64)
             ),
             Item::new(
                 ItemType::ITEM2,
-                (0f64, 4f64, 10f64)
+                (75f64, 4f64, -22f64)
             ),
             Item::new(
                 ItemType::ITEM3,
-                (0f64, 4f64, -10f64)
+                (95f64, 4f64, -3f64)
             ),
         ]
     }
@@ -47,7 +47,7 @@ impl ToString for Item {
     #[inline]
     fn to_string(&self) -> String {
         // clone
-        let json = format!("{{\"id\": {}, \"pos\": [{}, {}, {}]}}\n", self.item_type.clone() as i32, self.pos.0, self.pos.1, self.pos.2);
+        let json = format!("{{\"type\": {}, \"pos\": [{}, {}, {}]}}\n", self.item_type.clone() as i32, self.pos.0, self.pos.1, self.pos.2);
 
         json
     }
