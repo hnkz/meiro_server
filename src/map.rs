@@ -20,7 +20,7 @@ impl Map {
     }
 
     fn create_map(&mut self) {
-
+        
     }
 
     fn load_file(filename: &str) -> Vec<(f64, f64, f64)> {

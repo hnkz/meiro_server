@@ -77,10 +77,6 @@ impl User {
 
         return false;
     }
-
-    pub fn get_name(&mut self) -> String {
-        self.name.clone()
-    }
 }
 
 impl ToString for User {
