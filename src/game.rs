@@ -85,7 +85,7 @@ impl Game {
 
                 // if get goal
                 if id == 0 {
-                    json_part = format!("\"goal\": \"id\": {}", i);
+                    json_part = format!("\"chat\": {{ \"id\": {}, \"content\": {}}}", i, self.users[i].get_name());
                 } else {
                     json_part = format!("\"get\": {} \n", id);
                 }
