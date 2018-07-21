@@ -4,6 +4,7 @@ use serde_json::Value;
 use user::User;
 use map::Map;
 use item::Item;
+use item::ItemType;
 
 pub struct Game {
     max_users: usize,
@@ -15,11 +16,18 @@ pub struct Game {
 impl Game {
     // create new Game instance
     pub fn new(max_users: usize) -> Game {
+        let mut map = Map::new(33, 33);
+        let mut items = Vec::new();
+        items.push(Item::new(ItemType::GOAL, map.get_goal_pos()));
+        items.push(Item::new(ItemType::ITEM1, map.get_random_pos()));
+        items.push(Item::new(ItemType::ITEM2, map.get_random_pos()));
+        items.push(Item::new(ItemType::ITEM3, map.get_random_pos()));
+
         Game {
             max_users: max_users,
-            map: Map::new(33, 33),
+            map: map,
             users: Vec::new(),
-            items: Item::init_items()
+            items: items
         }
     }
 
@@ -148,7 +156,7 @@ impl Game {
         };
 
         let user_count = self.users.len();
-        self.users.push(User::new(stream, user_count));
+        self.users.push(User::new(stream, user_count, self.map.get_start_pos()));
 
         // create init json
         let mut json = format!("{{\n \"id\": {}\n ,{}", user_count , self.map.to_string());

@@ -1,26 +1,134 @@
 use std::io::BufReader;
 use std::io::BufRead;
 use std::fs::File;
+use rand::prelude::*;
 
-#[derive(Debug)]
+// const MAP_CORNER_POS: [[f64; 3]; 2] = [[-45, 0, 45], [935, 0, -935]];
+// const MAP_CORNER_POS: [[f64; 3]; 2] = [[0, 0, 0], [1000, 0, 1000]];
+const WALL_LENGTH: i32 = 10;
+const WALL_NUM: i32    = 3;
+
+#[derive(PartialEq)]
+enum MEIRO {
+    AISLE   = 0,
+    WALL    = 1,
+    START   = 2,
+    GOAL    = 3,
+}
+
 pub struct Map {
-    width: i32,
-    height: i32,
-    wall: Vec<(f64, f64, f64)>,
+    width   : i32,
+    height  : i32,
+    map     : Vec<Vec<MEIRO>>,
+    wall    : Vec<(f64, f64, f64)>,
+    start   : (f64, f64, f64),
+    goal    : (f64, f64, f64)
 }
 
 impl Map {
     pub fn new(width: i32, height: i32) -> Map {
-        let wall = Map::load_file("map.csv");
-        Map {
-            width: width,
-            height: height,
-            wall: wall,
-        }
+        let mut map = Map {
+            width   : width,
+            height  : height,
+            map     : Vec::new(),
+            wall    : Vec::new(),
+            start   : (0f64, 0f64, 0f64),
+            goal    : (0f64, 0f64, 0f64)
+        };
+
+        map.create_map();
+
+        map
     }
 
     fn create_map(&mut self) {
+        let width = self.width;
+        let height = self.height;
+
+        let mv: [(i32, i32); 4] = [(0, 1), (0, -1), (1, 0), (-1, 0)];
+
+        // let mut flag = [[false; width]; height];
+        let mut map = Vec::new();
         
+        let mut search_vec: Vec<(i32, i32)>     = Vec::new();
+        let mut searched_vec: Vec<(i32, i32)>   = Vec::new();
+
+        for i in 0..height {
+            let mut map_vec = Vec::new();
+            for j in 0..width {
+                if i == 0 || j == 0 || i == (height-1) || j == (width-1) {
+                    map_vec.push(MEIRO::WALL);
+                } else if i % 2 == 0 && j % 2 == 0 {
+                    search_vec.push((j as i32, i as i32));
+                    map_vec.push(MEIRO::AISLE);
+                } else {
+                    map_vec.push(MEIRO::AISLE);
+                }
+            }
+            map.push(map_vec);
+        }
+
+        map[1][1] = MEIRO::START;
+        map[(width-2) as usize][(width-2) as usize] = MEIRO::GOAL;
+
+        self.start = ((2 * WALL_LENGTH) as f64, 4f64, (2 * WALL_LENGTH) as f64);
+        self.goal = (((width-2) * WALL_LENGTH) as f64, 4f64, ((width-2) * WALL_LENGTH) as f64);
+
+        // 柱が空になるまで
+        while !search_vec.is_empty() {
+            // get random search_vec's item
+            let search_idx = random::<usize>() % search_vec.len();
+            let (mut x, mut y) = search_vec.remove(search_idx);
+
+            if map[x as usize][y as usize] == MEIRO::AISLE {
+                searched_vec.clear();
+                while map[x as usize][y as usize] != MEIRO::WALL {
+                    map[x as usize][y as usize] = MEIRO::WALL;
+
+                    // 方向をランダムで選定
+                    let m_idx = random::<usize>() % mv.len();
+                    let m = mv[m_idx];
+
+                    // 拡張中の壁に当たるか？
+                    let mut collision_count = 0;
+                    for searched in &searched_vec {
+                        for m in mv.iter() {
+                            if  searched.0 == x + (m.0 * 2) && searched.1 == y + (m.1 * 2) &&
+                                map[(y + (m.1 * 2)) as usize][(x + (m.0 * 2)) as usize] == MEIRO::WALL
+                            {
+                                // println!("({}, {}), {:?}, ({}, {})", x, y, m, searched.0, searched.1);
+                                collision_count += 1;
+                                break;
+                            }
+                        }
+                    }
+
+                    if collision_count == 4 {
+                        break;
+                    }
+                    
+                    map[(y + m.1) as usize][(x + m.0) as usize] = MEIRO::WALL;
+                    searched_vec.push((x + (m.0 * 2), y + (m.1 * 2)));
+                    x = x + (m.0 * 2);
+                    y = y + (m.1 * 2);
+                }
+            }
+        }
+
+        let mut wall_vec = Vec::new();
+        for i in 0..height {
+            for j in 0..width {
+                let mut vertical = false;
+                let mut horizontal = false;
+
+                if map[i as usize][j as usize] == MEIRO::WALL {
+                    wall_vec.push(((j * WALL_LENGTH) as f64, 0f64, (i * WALL_LENGTH) as f64));
+                }
+            }
+        }
+
+        self.wall   = wall_vec;
+        self.map    = map;
     }
 
     fn load_file(filename: &str) -> Vec<(f64, f64, f64)> {
@@ -39,6 +147,25 @@ impl Map {
         }
 
         wall
+    }
+
+    pub fn get_start_pos(&self) -> (f64, f64, f64) {
+        self.start
+    }
+
+    pub fn get_goal_pos(&self) -> (f64, f64, f64) {
+        self.goal
+    }
+
+    pub fn get_random_pos(&self) -> (f64, f64, f64) {
+        loop {
+            let x = random::<usize>() % self.width as usize;
+            let y = random::<usize>() % self.height as usize;
+
+            if self.map[y][x] == MEIRO::AISLE {
+                return ((x * WALL_LENGTH as usize) as f64, 4f64, (y * WALL_LENGTH as usize) as f64)
+            }
+        }
     }
 }
 

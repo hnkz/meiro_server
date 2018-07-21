@@ -11,13 +11,13 @@ pub struct User {
 }
 
 impl User {
-    pub fn new(stream: Client<TcpStream>, i: usize) -> User {
+    pub fn new(stream: Client<TcpStream>, i: usize, pos: (f64, f64, f64)) -> User {
         User {
             stream: stream,
             name: format!("player{}", i),
-            x: 0f64,
-            y: 4f64,
-            z: 0f64
+            x: pos.0,
+            y: pos.1,
+            z: pos.2
         }
     }
 
