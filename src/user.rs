@@ -27,7 +27,6 @@ impl User {
                 raw
             },
             Err(_err) => {
-                // println!("recv_message error: {}", err);
                 return "".to_string()
             }
         };

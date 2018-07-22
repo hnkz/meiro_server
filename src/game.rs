@@ -3,8 +3,7 @@ use websocket::sync::{ Client, Server };
 use serde_json::Value;
 use user::User;
 use map::Map;
-use item::Item;
-use item::ItemType;
+use item::{ Item, ItemType };
 
 pub struct Game {
     max_users: usize,
@@ -16,7 +15,7 @@ pub struct Game {
 impl Game {
     // create new Game instance
     pub fn new(max_users: usize) -> Game {
-        let mut map = Map::new(33, 33);
+        let map = Map::new(33, 33);
         let mut items = Vec::new();
         items.push(Item::new(ItemType::GOAL, map.get_goal_pos()));
         items.push(Item::new(ItemType::ITEM1, map.get_random_pos()));
@@ -65,7 +64,7 @@ impl Game {
             return;
         }
 
-        println!("{}", message);
+        // println!("{}", message);
 
         let v: Value = serde_json::from_str(&message).expect("json parse error");
 

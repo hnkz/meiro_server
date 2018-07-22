@@ -3,14 +3,11 @@ use std::io::BufRead;
 use std::fs::File;
 use rand::prelude::*;
 
-// const MAP_CORNER_POS: [[f64; 3]; 2] = [[-45, 0, 45], [935, 0, -935]];
-// const MAP_CORNER_POS: [[f64; 3]; 2] = [[0, 0, 0], [1000, 0, 1000]];
 const WALL_LENGTH: i32 = 10;
-const WALL_NUM: i32    = 3;
 
 #[derive(PartialEq)]
-enum MEIRO {
-    AISLE   = 0,
+enum ElmType {
+    AISLE   = 0, // 通路
     WALL    = 1,
     START   = 2,
     GOAL    = 3,
@@ -19,7 +16,7 @@ enum MEIRO {
 pub struct Map {
     width   : i32,
     height  : i32,
-    map     : Vec<Vec<MEIRO>>,
+    map     : Vec<Vec<ElmType>>,
     wall    : Vec<(f64, f64, f64)>,
     start   : (f64, f64, f64),
     goal    : (f64, f64, f64)
@@ -47,7 +44,6 @@ impl Map {
 
         let mv: [(i32, i32); 4] = [(0, 1), (0, -1), (1, 0), (-1, 0)];
 
-        // let mut flag = [[false; width]; height];
         let mut map = Vec::new();
         
         let mut search_vec: Vec<(i32, i32)>     = Vec::new();
@@ -57,21 +53,21 @@ impl Map {
             let mut map_vec = Vec::new();
             for j in 0..width {
                 if i == 0 || j == 0 || i == (height-1) || j == (width-1) {
-                    map_vec.push(MEIRO::WALL);
+                    map_vec.push(ElmType::WALL);
                 } else if i % 2 == 0 && j % 2 == 0 {
                     search_vec.push((j as i32, i as i32));
-                    map_vec.push(MEIRO::AISLE);
+                    map_vec.push(ElmType::AISLE);
                 } else {
-                    map_vec.push(MEIRO::AISLE);
+                    map_vec.push(ElmType::AISLE);
                 }
             }
             map.push(map_vec);
         }
 
-        map[1][1] = MEIRO::START;
-        map[(width-2) as usize][(width-2) as usize] = MEIRO::GOAL;
+        map[1][1] = ElmType::START;
+        map[(width-2) as usize][(width-2) as usize] = ElmType::GOAL;
 
-        self.start = ((2 * WALL_LENGTH) as f64, 4f64, (2 * WALL_LENGTH) as f64);
+        self.start = ((-1 * WALL_LENGTH) as f64, 4f64, (-1 * WALL_LENGTH) as f64);
         self.goal = (((width-2) * WALL_LENGTH) as f64, 4f64, ((width-2) * WALL_LENGTH) as f64);
 
         // 柱が空になるまで
@@ -80,10 +76,10 @@ impl Map {
             let search_idx = random::<usize>() % search_vec.len();
             let (mut x, mut y) = search_vec.remove(search_idx);
 
-            if map[x as usize][y as usize] == MEIRO::AISLE {
+            if map[x as usize][y as usize] == ElmType::AISLE {
                 searched_vec.clear();
-                while map[x as usize][y as usize] != MEIRO::WALL {
-                    map[x as usize][y as usize] = MEIRO::WALL;
+                while map[x as usize][y as usize] != ElmType::WALL {
+                    map[x as usize][y as usize] = ElmType::WALL;
 
                     // 方向をランダムで選定
                     let m_idx = random::<usize>() % mv.len();
@@ -94,7 +90,7 @@ impl Map {
                     for searched in &searched_vec {
                         for m in mv.iter() {
                             if  searched.0 == x + (m.0 * 2) && searched.1 == y + (m.1 * 2) &&
-                                map[(y + (m.1 * 2)) as usize][(x + (m.0 * 2)) as usize] == MEIRO::WALL
+                                map[(y + (m.1 * 2)) as usize][(x + (m.0 * 2)) as usize] == ElmType::WALL
                             {
                                 // println!("({}, {}), {:?}, ({}, {})", x, y, m, searched.0, searched.1);
                                 collision_count += 1;
@@ -107,7 +103,7 @@ impl Map {
                         break;
                     }
                     
-                    map[(y + m.1) as usize][(x + m.0) as usize] = MEIRO::WALL;
+                    map[(y + m.1) as usize][(x + m.0) as usize] = ElmType::WALL;
                     searched_vec.push((x + (m.0 * 2), y + (m.1 * 2)));
                     x = x + (m.0 * 2);
                     y = y + (m.1 * 2);
@@ -118,10 +114,7 @@ impl Map {
         let mut wall_vec = Vec::new();
         for i in 0..height {
             for j in 0..width {
-                let mut vertical = false;
-                let mut horizontal = false;
-
-                if map[i as usize][j as usize] == MEIRO::WALL {
+                if map[i as usize][j as usize] == ElmType::WALL {
                     wall_vec.push(((j * WALL_LENGTH) as f64, 0f64, (i * WALL_LENGTH) as f64));
                 }
             }
@@ -131,6 +124,7 @@ impl Map {
         self.map    = map;
     }
 
+    #[allow(dead_code)]
     fn load_file(filename: &str) -> Vec<(f64, f64, f64)> {
         let f = File::open(filename).expect("cannnot open file");
         let reader = BufReader::new(f);
@@ -162,7 +156,7 @@ impl Map {
             let x = random::<usize>() % self.width as usize;
             let y = random::<usize>() % self.height as usize;
 
-            if self.map[y][x] == MEIRO::AISLE {
+            if self.map[y][x] == ElmType::AISLE {
                 return ((x * WALL_LENGTH as usize) as f64, 4f64, (y * WALL_LENGTH as usize) as f64)
             }
         }

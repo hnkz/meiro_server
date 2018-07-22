@@ -21,26 +21,27 @@ impl Item {
         }
     }
 
-    // pub fn init_items() -> Vec<Item> {
-    //     vec![
-    //         Item::new(
-    //             ItemType::GOAL,
-    //             (142f64, 4f64, -23f64)
-    //         ),
-    //         Item::new(
-    //             ItemType::ITEM1,
-    //             (58f64, 4f64, -2f64)
-    //         ),
-    //         Item::new(
-    //             ItemType::ITEM2,
-    //             (75f64, 4f64, -22f64)
-    //         ),
-    //         Item::new(
-    //             ItemType::ITEM3,
-    //             (95f64, 4f64, -3f64)
-    //         ),
-    //     ]
-    // }
+    #[allow(dead_code)]
+    pub fn init_items() -> Vec<Item> {
+        vec![
+            Item::new(
+                ItemType::GOAL,
+                (142f64, 4f64, -23f64)
+            ),
+            Item::new(
+                ItemType::ITEM1,
+                (58f64, 4f64, -2f64)
+            ),
+            Item::new(
+                ItemType::ITEM2,
+                (75f64, 4f64, -22f64)
+            ),
+            Item::new(
+                ItemType::ITEM3,
+                (95f64, 4f64, -3f64)
+            ),
+        ]
+    }
 }
 
 impl ToString for Item {
