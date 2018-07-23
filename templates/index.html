@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<script src="js/InputKeyboard.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js"></script>
+<script src="js/GameUtil.js"></script>
+<script src="js/GameObject.js"></script>
+<script src="js/Player.js"></script>
+<script src="js/Other.js"></script>
+<script src="js/Wall.js"></script>  
+<script src="js/Floor.js"></script>
+<script src="js/InitMap.js"></script>
+<script src="js/MiniMap.js"></script>
+<script src="js/JumpItem.js"></script>
+<script src="js/MapItem.js"></script>
+<script src="js/SpeedItem.js"></script>
+<script src="js/Goal.js"></script>
+<script src="js/Connect.js"></script>
+<link rel="stylesheet" href="css/style.css" type="text/css">
+
+<script>
+// wait html load
+window.addEventListener('load', init);
+
+function init() {
+  // set size
+  const width = 960;
+  const height = 540;
+
+  // create renderer
+  const renderer = new THREE.WebGLRenderer({
+    canvas: document.querySelector('#myCanvas'),
+  });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(width, height);
+  renderer.setClearColor(0xF9F9F9, 1.0);
+
+  // create camera
+  const camera = new THREE.PerspectiveCamera(45, width / height);
+
+  // create light
+  const light = new THREE.DirectionalLight(0xFFFFFF, 1);
+  light.position.set(1, 1, 1);
+  scene.add(light);
+
+  const light2 = new THREE.HemisphereLight(0x888888, 0x0000FF, 1.0);
+  scene.add(light2);
+
+  // create item
+  let item = new Array();
+
+  // create player
+  let player = new Player();
+  let other = new Array(3);
+  let cnt = 0;
+  for (i = 0; i < 4; i++) {
+    if (i == playerID) {
+      player.start(new THREE.Vector3(playerPos[playerID][0], playerPos[playerID][1], playerPos[playerID][2]));
+    } else {
+      other[cnt] = new Other();
+      other[cnt].start(new THREE.Vector3(playerPos[cnt][0], playerPos[cnt][1], playerPos[cnt][2]));
+      cnt++;
+    }
+  }
+
+  // create floor
+  const floor = new Floor();
+  floor.mesh.position.set(0, -5, 0);
+
+  // create minimap
+  const minimap = new MiniMap();
+
+  // loop event
+  tick();
+
+  // one frame process
+  function tick() {
+    if (mapFlag) {
+      initMap();
+      delete mapPos;
+      mapFlag = false;
+    }
+
+    if (itemFlag) {
+      for (i = 0; i < itemPos.length; i++) {
+        switch (itemType[i]) {
+        case 0:
+          item[i] = new Goal();
+          break;
+        case 1:
+          item[i] = new JumpItem();
+          break;
+        case 2:
+          item[i] = new SpeedItem();
+          break;
+        case 3:
+          item[i] = new MapItem();
+          break;
+        }
+        item[i].start(new THREE.Vector3(itemPos[i][0], itemPos[i][1], itemPos[i][2]));
+        item[i].itemID = itemType[i];
+      }
+      itemFlag = false;
+    }
+
+    // item get process
+    if (getItemID >= 0) {
+      item[getItemID].get();
+    }
+
+    minimap.update(player.pos);
+    minimap.clearMiniMap();
+
+    let cnt = 0;
+    for (i = 0; i < 4; i++) {
+      if (i == playerID) {
+        continue;
+      }
+      other[cnt].pos.x = playerPos[i][0];
+      other[cnt].pos.y = playerPos[i][1];
+      other[cnt].pos.z = playerPos[i][2];
+      cnt++;
+    }
+
+    for (let obj of GameObjectTbl) {
+      obj.update();
+      player.hitCheck(obj);
+      if (player.mapCount > 0 && obj.isVisible) {
+        minimap.drawObj(obj);
+      }
+    }
+
+    camera.position.set(player.pos.x, player.pos.y, player.pos.z);
+    camera.lookAt(player.getLookAtVector());
+
+    // rendering
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+
+    // send position to server
+    sendPos(player.pos);
+  }
+}
+</script>
+</head>
+<body>
+<div class="game">
+<canvas id="myCanvas" style="position:fixed; top:0px; left:0px; width:960; height:540; z-index: 1; background-color: #000000;"></canvas>
+<canvas id="miniMap" style="position:fixed; top:340px; left:10px; width:160px; height:160px; z-index: 2; background-color:rgba(0,0,0,0);"></canvas>
+</div>
+
+<div class="chat">
+You are Player<span id="playerID"></span><br>
+<input type="text" id="chat" name="chat" float="right">
+<button type="submit" id="submit" value="Submit" floar="right" onClick="sendChat()">Submit</button>
+<div id="text"></div>
+</div>
+</body>
+</html>
