@@ -66,6 +66,7 @@ function init() {
   const title = new Title();
 
   // loop event
+  var sendFlag = true;
   tick();
 
   // one frame process
@@ -148,7 +149,10 @@ function init() {
       renderer.render(scene, camera);
 
       // send position to server
-      sendPos(player.pos);
+      if (sendFlag) {
+        sendPos(player.pos);
+      }
+      sendFlag != sendFlag;
       break;
     }
 

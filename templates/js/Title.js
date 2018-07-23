@@ -24,5 +24,13 @@ class Title {
 
   draw() {
     this.ct.drawImage(this.image, this.x, this.y, this.cv.width, this.cv.height);
+
+    if (gameState == 2) {
+      this.ct.font = "64px cursive";
+      this.ct.textAlign = "center";
+      this.ct.textBaseline = "top";
+      this.ct.fillStyle = "white";
+      this.ct.fillText("Press Enter Key", this.cv.width / 2, this.cv.height / 2 + 30);
+    }
   }
 }
