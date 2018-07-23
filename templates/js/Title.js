@@ -12,7 +12,7 @@ class Title {
   update(pos) {
     const RETURN_KEY = 13;  // Enter
 
-    if (this.input_key.isDown(RETURN_KEY)) {
+    if (this.input_key.isDown(RETURN_KEY) && gameState == 2) {
       this.clear();
       gameState++;
     }
