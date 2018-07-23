@@ -2,22 +2,24 @@ use game::Game;
 use std::thread;
 use std::sync::{Arc, Mutex};
 
-const MAX_USER: usize = 2;
+const MAX_USER: usize = 4;
 
 pub fn start_ws_server(status: Arc<Mutex<bool>>) {
 	let game = Arc::new(Mutex::new(Game::new(MAX_USER)));
 
 	// wait state
-	let mut status = status.lock().unwrap();
-	*status = match game.lock() {
-		Ok(mut game) => {
-			game.wait()
-		},
-		Err(err) => {
-			println!("game lock error: {}", err);
-			false
-		}
-	};
+	{
+		let mut status = status.lock().unwrap();
+		*status = match game.lock() {
+			Ok(mut game) => {
+				game.wait()
+			},
+			Err(err) => {
+				println!("game lock error: {}", err);
+				false
+			}
+		};
+	}
 
 	// start state
 	let mut th = Vec::new();
