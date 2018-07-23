@@ -17,6 +17,7 @@
 <script src="js/SpeedItem.js"></script>
 <script src="js/Goal.js"></script>
 <script src="js/Connect.js"></script>
+<script src="js/Title.js"></script>
 <link rel="stylesheet" href="css/style.css" type="text/css">
 
 <script>
@@ -53,16 +54,6 @@ function init() {
   // create player
   let player = new Player();
   let other = new Array(3);
-  let cnt = 0;
-  for (i = 0; i < 4; i++) {
-    if (i == playerID) {
-      player.start(new THREE.Vector3(playerPos[playerID][0], playerPos[playerID][1], playerPos[playerID][2]));
-    } else {
-      other[cnt] = new Other();
-      other[cnt].start(new THREE.Vector3(playerPos[cnt][0], playerPos[cnt][1], playerPos[cnt][2]));
-      cnt++;
-    }
-  }
 
   // create floor
   const floor = new Floor();
@@ -71,18 +62,21 @@ function init() {
   // create minimap
   const minimap = new MiniMap();
 
+  // title
+  const title = new Title();
+
   // loop event
   tick();
 
   // one frame process
   function tick() {
-    if (mapFlag) {
+    let cnt = 0;
+    switch (gameState) {
+    case 1:
+    // initialize game
       initMap();
       delete mapPos;
-      mapFlag = false;
-    }
 
-    if (itemFlag) {
       for (i = 0; i < itemPos.length; i++) {
         switch (itemType[i]) {
         case 0:
@@ -101,45 +95,64 @@ function init() {
         item[i].start(new THREE.Vector3(itemPos[i][0], itemPos[i][1], itemPos[i][2]));
         item[i].itemID = itemType[i];
       }
-      itemFlag = false;
-    }
 
-    // item get process
-    if (getItemID >= 0) {
-      item[getItemID].get();
-    }
-
-    minimap.update(player.pos);
-    minimap.clearMiniMap();
-
-    let cnt = 0;
-    for (i = 0; i < 4; i++) {
-      if (i == playerID) {
-        continue;
+      for (i = 0; i < 4; i++) {
+        if (i == playerID) {
+          player.start(new THREE.Vector3(playerPos[playerID][0], playerPos[playerID][1], playerPos[playerID][2]));
+        } else {
+          other[cnt] = new Other();
+          other[cnt].start(new THREE.Vector3(playerPos[cnt][0], playerPos[cnt][1], playerPos[cnt][2]));
+          cnt++;
+        }
       }
-      other[cnt].pos.x = playerPos[i][0];
-      other[cnt].pos.y = playerPos[i][1];
-      other[cnt].pos.z = playerPos[i][2];
-      cnt++;
-    }
+      document.getElementById("playerID").innerHTML = playerID;
 
-    for (let obj of GameObjectTbl) {
-      obj.update();
-      player.hitCheck(obj);
-      if (player.mapCount > 0 && obj.isVisible) {
-        minimap.drawObj(obj);
+      gameState++;
+    case 0:
+    case 2:
+      // title
+      title.draw();
+      title.update();
+      break;
+    case 3:
+      // item get process
+      if (getItemID >= 0) {
+        item[getItemID].get();
       }
+
+      minimap.update(player.pos);
+      minimap.clearMiniMap();
+
+      for (i = 0; i < 4; i++) {
+        if (i == playerID) {
+          continue;
+        }
+        other[cnt].pos.x = playerPos[i][0];
+        other[cnt].pos.y = playerPos[i][1];
+        other[cnt].pos.z = playerPos[i][2];
+        cnt++;
+      }
+
+      for (let obj of GameObjectTbl) {
+        obj.update();
+        player.hitCheck(obj);
+        if (player.mapCount > 0 && obj.isVisible) {
+          minimap.drawObj(obj);
+        }
+      }
+
+      camera.position.set(player.pos.x, player.pos.y, player.pos.z);
+      camera.lookAt(player.getLookAtVector());
+
+      // rendering
+      renderer.render(scene, camera);
+
+      // send position to server
+      sendPos(player.pos);
+      break;
     }
 
-    camera.position.set(player.pos.x, player.pos.y, player.pos.z);
-    camera.lookAt(player.getLookAtVector());
-
-    // rendering
-    renderer.render(scene, camera);
     requestAnimationFrame(tick);
-
-    // send position to server
-    sendPos(player.pos);
   }
 }
 </script>
@@ -148,6 +161,7 @@ function init() {
 <div class="game">
 <canvas id="myCanvas" style="position:fixed; top:0px; left:0px; width:960; height:540; z-index: 1; background-color: #000000;"></canvas>
 <canvas id="miniMap" style="position:fixed; top:340px; left:10px; width:160px; height:160px; z-index: 2; background-color:rgba(0,0,0,0);"></canvas>
+<canvas id="title" style="position:fixed; top:0px; left:0px; width:960; height:540; z-index: 3;" width="960" height="540"></canvas>
 </div>
 
 <div class="chat">
