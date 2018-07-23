@@ -71,8 +71,15 @@ impl Game {
         // chat
         match v.get("chat") {
             Some(_chat) => {
-                for i in 0..self.max_users {
-                    self.users[i].send_message(message.clone());
+                for i in 0..self.users.len() {
+                    match self.users[i].send_message(message.clone()) {
+                        Ok(_) => {},
+                        Err(err) => {
+                            println!("user {} is closed ? : {}", i, err);
+                            self.users.remove(i);
+                            return;
+                        }
+                    };
                 }
             },
             None => {}
@@ -99,7 +106,14 @@ impl Game {
 
                 for i in 0..self.max_users {
                     let json = format!("{{\n \"id\": {}\n ,{}}}", i, json_part);
-                    self.users[i].send_message(json);
+                    match self.users[i].send_message(json) {
+                        Ok(_) => {},
+                        Err(err) => {
+                            println!("user {} is closed ? : {}", i, err);
+                            self.users.remove(i);
+                            return;
+                        }
+                    };
                 }
             },
             None => {}
@@ -138,7 +152,14 @@ impl Game {
                 json.pop();
                 json.push_str("]\n");
                 json.push_str("}\n");
-                self.users[i].send_message(json);
+                match self.users[i].send_message(json) {
+                    Ok(_) => {},
+                    Err(err) => {
+                        println!("user {} is closed ? : {}", i, err);
+                        self.users.remove(i);
+                        return;
+                    }
+                };
             },
             None => {}
         }
@@ -177,8 +198,12 @@ impl Game {
         json.push_str("]\n");
 
         json.push_str("}\n");
-        self.users[user_count].send_message(json);
-
+        match self.users[user_count].send_message(json) {
+            Ok(_) => {},
+            Err(err) => {
+                println!("user {} is closed ? : {}", user_count, err);
+            }
+        };
         self.check_closed();
     }
 

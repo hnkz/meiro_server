@@ -39,11 +39,13 @@ impl User {
         message
     }
 
-    pub fn send_message(&mut self, message: String) {
+    pub fn send_message(&mut self, message: String) -> Result<(), String> {
         match self.stream.send_message(&OwnedMessage::Text(message)) {
-            Ok(_) => {},
+            Ok(_) => { 
+                return Ok(());
+            },
             Err(err) => {
-                println!("ws send_message error: {}", err);
+                return Err(format!("ws send_message error: {}", err));
             }   
         };
     }
