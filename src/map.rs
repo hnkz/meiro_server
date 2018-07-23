@@ -67,7 +67,7 @@ impl Map {
         map[1][1] = ElmType::START;
         map[(width-2) as usize][(width-2) as usize] = ElmType::GOAL;
 
-        self.start = ((-1 * WALL_LENGTH) as f64, 4f64, (-1 * WALL_LENGTH) as f64);
+        self.start = ((1 * WALL_LENGTH) as f64, 4f64, (1 * WALL_LENGTH) as f64);
         self.goal = (((width-2) * WALL_LENGTH) as f64, 4f64, ((width-2) * WALL_LENGTH) as f64);
 
         // 柱が空になるまで

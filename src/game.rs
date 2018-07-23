@@ -21,6 +21,9 @@ impl Game {
         items.push(Item::new(ItemType::ITEM1, map.get_random_pos()));
         items.push(Item::new(ItemType::ITEM2, map.get_random_pos()));
         items.push(Item::new(ItemType::ITEM3, map.get_random_pos()));
+        items.push(Item::new(ItemType::ITEM1, map.get_random_pos()));
+        items.push(Item::new(ItemType::ITEM2, map.get_random_pos()));
+        items.push(Item::new(ItemType::ITEM3, map.get_random_pos()));
 
         Game {
             max_users: max_users,
@@ -63,8 +66,6 @@ impl Game {
         if message == "".to_string() {
             return;
         }
-
-        // println!("{}", message);
 
         let v: Value = serde_json::from_str(&message).expect("json parse error");
 
