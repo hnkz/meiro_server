@@ -11,6 +11,7 @@ enum ElmType {
     WALL    = 1,
     START   = 2,
     GOAL    = 3,
+    EMPTY   = 4,
 }
 
 pub struct Map {
@@ -92,7 +93,6 @@ impl Map {
                             if  searched.0 == x + (m.0 * 2) && searched.1 == y + (m.1 * 2) &&
                                 map[(y + (m.1 * 2)) as usize][(x + (m.0 * 2)) as usize] == ElmType::WALL
                             {
-                                // println!("({}, {}), {:?}, ({}, {})", x, y, m, searched.0, searched.1);
                                 collision_count += 1;
                                 break;
                             }
@@ -147,16 +147,18 @@ impl Map {
         self.start
     }
 
+    #[allow(dead_code)]
     pub fn get_goal_pos(&self) -> (f64, f64, f64) {
         self.goal
     }
 
-    pub fn get_random_pos(&self) -> (f64, f64, f64) {
+    pub fn get_random_pos(&mut self) -> (f64, f64, f64) {
         loop {
             let x = random::<usize>() % self.width as usize;
             let y = random::<usize>() % self.height as usize;
 
             if self.map[y][x] == ElmType::AISLE {
+                self.map[y][x] = ElmType::EMPTY;
                 return ((x * WALL_LENGTH as usize) as f64, 4f64, (y * WALL_LENGTH as usize) as f64)
             }
         }

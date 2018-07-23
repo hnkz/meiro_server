@@ -4,6 +4,8 @@ use serde_json::Value;
 use user::User;
 use map::Map;
 use item::{ Item, ItemType };
+use rand::prelude::*;
+use num::FromPrimitive;
 
 pub struct Game {
     max_users: usize,
@@ -15,15 +17,14 @@ pub struct Game {
 impl Game {
     // create new Game instance
     pub fn new(max_users: usize) -> Game {
-        let map = Map::new(33, 33);
+        let mut map = Map::new(33, 33);
         let mut items = Vec::new();
-        items.push(Item::new(ItemType::GOAL, map.get_goal_pos()));
-        items.push(Item::new(ItemType::ITEM1, map.get_random_pos()));
-        items.push(Item::new(ItemType::ITEM2, map.get_random_pos()));
-        items.push(Item::new(ItemType::ITEM3, map.get_random_pos()));
-        items.push(Item::new(ItemType::ITEM1, map.get_random_pos()));
-        items.push(Item::new(ItemType::ITEM2, map.get_random_pos()));
-        items.push(Item::new(ItemType::ITEM3, map.get_random_pos()));
+        items.push(Item::new(ItemType::GOAL, map.get_random_pos()));
+
+        // good unwrap
+        for _ in 0..20 {
+            items.push(Item::new(ItemType::from_u64(random::<u64>() % 3 + 1).unwrap(), map.get_random_pos()));
+        }
 
         Game {
             max_users: max_users,
@@ -43,10 +44,23 @@ impl Game {
                 return true;
             }
 
-            let mut client = request.use_protocol("rust-websocket").accept().unwrap();
-            let ip = client.peer_addr().unwrap();
+            let mut client = match request.use_protocol("rust-websocket").accept() {
+                Ok(client) => client,
+                Err(err) => {
+                    println!("wait error: {}", err.1);
+                    continue;
+                }
+            };
+            let ip = match client.peer_addr() {
+                Ok(ip) => ip,
+                Err(err) => {
+                    println!("peer_addr error: {}", err);
+                    continue;
+                }   
+            };
             println!("add user: {}", ip);
 
+            self.check_closed();
             self.add_user(client);
 
             if self.users.len() == self.max_users as usize {
@@ -105,7 +119,7 @@ impl Game {
                     json_part = format!("\"get\": {} \n", id);
                 }
 
-                for i in 0..self.max_users {
+                for i in 0..self.users.len() {
                     let json = format!("{{\n \"id\": {}\n ,{}}}", i, json_part);
                     match self.users[i].send_message(json) {
                         Ok(_) => {},
@@ -146,8 +160,8 @@ impl Game {
 
                 let mut json = format!("{{\n \"id\": {}\n", i);
                 json.push_str(",\"player\": [");
-                for i in 0..self.max_users {
-                    json.push_str(self.users[i as usize].to_string().as_str());
+                for i in 0..self.users.len() {
+                    json.push_str(self.users[i].to_string().as_str());
                     json.push_str(",");
                 }
                 json.pop();
@@ -205,7 +219,6 @@ impl Game {
                 println!("user {} is closed ? : {}", user_count, err);
             }
         };
-        self.check_closed();
     }
 
     pub fn set_user_pos(&mut self, i: usize, pos: (f64, f64, f64)) {
@@ -213,15 +226,24 @@ impl Game {
     }
 
     fn check_closed(&mut self) {
-        let mut i = 0i32;
+        let mut i = 0usize;
         for _ in 0..self.users.len() {
-            println!("{}", i);
-            let flag = self.users[i as usize].is_closed();
+            if i >= self.users.len() {
+                return;
+            }
+
+            let flag = self.users[i].is_closed();
+
             if flag {
-                self.users.remove(i as usize);
+                println!("remove user: {}", self.users[i].get_name());
+                self.users.remove(i);
             }
 
             i += 1;
         }
+    }
+
+    pub fn get_user_len(&self) -> usize {
+        self.users.len()
     }
 }

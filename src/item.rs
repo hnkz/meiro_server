@@ -1,3 +1,4 @@
+use num::traits::FromPrimitive;
 
 #[derive(Debug, Clone)]
 pub enum ItemType {
@@ -5,6 +6,28 @@ pub enum ItemType {
     ITEM1   = 1,
     ITEM2   = 2,
     ITEM3   = 3,
+}
+
+impl FromPrimitive for ItemType {
+    fn from_i64(n: i64) -> Option<ItemType> {
+        match n {
+            0 => Some(ItemType::GOAL),
+            1 => Some(ItemType::ITEM1),
+            2 => Some(ItemType::ITEM2),
+            3 => Some(ItemType::ITEM3),
+            _ => None,
+        }
+    }
+
+    fn from_u64(n: u64) -> Option<ItemType> {
+        match n {
+            0 => Some(ItemType::GOAL),
+            1 => Some(ItemType::ITEM1),
+            2 => Some(ItemType::ITEM2),
+            3 => Some(ItemType::ITEM3),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -53,3 +76,4 @@ impl ToString for Item {
         json
     }
 }
+

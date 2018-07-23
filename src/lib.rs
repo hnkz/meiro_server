@@ -2,6 +2,7 @@
 extern crate serde_json;
 extern crate websocket;
 extern crate rand;
+extern crate num;
 
 pub mod ws_server;
 mod game;

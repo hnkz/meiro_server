@@ -10,6 +10,7 @@ rocket_codegen = "*"
 serde_json = "1.0"
 lazy_static = "1.0"
 rand = "0.5"
+num = "*"
 
 [dependencies.rocket_contrib]
 version = "*"

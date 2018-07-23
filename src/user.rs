@@ -61,8 +61,8 @@ impl User {
     pub fn is_closed(&mut self) -> bool {
         let message = match self.stream.recv_message() {
             Ok(message) => message,
-            Err(err) => {
-                println!("message err: {}", err);
+            Err(_err) => {
+                // println!("message err: {}", err);
                 return false;
             }    
         };
@@ -70,13 +70,22 @@ impl User {
         match message {
             OwnedMessage::Close(_) => {
                 let message = OwnedMessage::Close(None);
-                self.stream.send_message(&message).unwrap();
+                match self.stream.send_message(&message) {
+                    Ok(_) => {},
+                    Err(_err) => {
+
+                    }   
+                };
                 return true;
             }
             _ => {},
         }
 
         return false;
+    }
+
+    pub fn get_name(&self) -> String {
+        self.name.clone()
     }
 }
 

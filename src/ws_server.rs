@@ -23,7 +23,19 @@ pub fn start_ws_server(status: Arc<Mutex<bool>>) {
 
 	// start state
 	let mut th = Vec::new();
-	for i in 0..MAX_USER {
+	let user_len: usize;
+	{
+		user_len = match game.lock() {
+			Ok(game) => {
+				game.get_user_len()
+			},
+			Err(err) => {
+				println!("game lock error: {}", err);
+				0
+			}
+		};
+	}
+	for i in 0..user_len {
 		let g = game.clone();
 		th.push(thread::spawn(move || {
 		    // loop of main game
@@ -32,8 +44,8 @@ pub fn start_ws_server(status: Arc<Mutex<bool>>) {
 					Ok(mut g) => {
 						g.start(i);
 					},
-					Err(err) => {
-						println!("g lock error: {}", err);
+					Err(_err) => {
+						// println!("g lock error: {}", err);
 					}
 				}
 			}
