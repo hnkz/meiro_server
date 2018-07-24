@@ -19,7 +19,7 @@ impl Game {
     pub fn new(max_users: usize) -> Game {
         let mut map = Map::new(33, 33);
         let mut items = Vec::new();
-        items.push(Item::new(ItemType::GOAL, map.get_random_pos()));
+        items.push(Item::new(ItemType::GOAL, map.get_goal_pos()));
 
         // good unwrap
         for _ in 0..20 {
@@ -75,6 +75,10 @@ impl Game {
 
     // start game state
     pub fn start(&mut self, i: usize) {
+        if self.users[i].get_closed_flag() {
+            return;
+        }
+
         let message = self.users[i].recv_message();
 
         if message == "".to_string() {
@@ -91,7 +95,7 @@ impl Game {
                         Ok(_) => {},
                         Err(err) => {
                             println!("user {} is closed ? : {}", i, err);
-                            self.users.remove(i);
+                            self.users[i].set_closed(true);
                             return;
                         }
                     };
@@ -125,7 +129,7 @@ impl Game {
                         Ok(_) => {},
                         Err(err) => {
                             println!("user {} is closed ? : {}", i, err);
-                            self.users.remove(i);
+                            self.users[i].set_closed(true);
                             return;
                         }
                     };
@@ -171,7 +175,7 @@ impl Game {
                     Ok(_) => {},
                     Err(err) => {
                         println!("user {} is closed ? : {}", i, err);
-                        self.users.remove(i);
+                        self.users[i].set_closed(true);
                         return;
                     }
                 };

@@ -5,6 +5,7 @@ use websocket::OwnedMessage;
 pub struct User {
     stream: Client<TcpStream>,
     name: String,
+    closed: bool,
     x: f64,
     y: f64,
     z: f64
@@ -15,6 +16,7 @@ impl User {
         User {
             stream: stream,
             name: format!("player{}", i),
+            closed: false,
             x: pos.0,
             y: pos.1,
             z: pos.2
@@ -82,6 +84,14 @@ impl User {
         }
 
         return false;
+    }
+
+    pub fn set_closed(&mut self, flag: bool) {
+        self.closed = flag;
+    }
+
+    pub fn get_closed_flag(&self) -> bool {
+        self.closed
     }
 
     pub fn get_name(&self) -> String {
