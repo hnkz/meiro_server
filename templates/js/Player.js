@@ -39,9 +39,12 @@ class Player extends GameObject {
     const LEFT_TURN_KEY = 65;   // A
     const RIGHT_TURN_KEY = 68;  // D
     const JUMP_KEY = 74;        // J
-    const SHIFT_KEY = 16;           // Shift
+    const SHIFT_KEY = 16;       // Shift
+    const C_KEY = 67;           // C
 
     let currentPos = this.pos.clone();
+
+    // move
     if (this.input_key.isDown(FORWARD_KEY)) {
       let move = this.forward.clone();
       move.multiplyScalar(this.move_speed);
@@ -69,12 +72,20 @@ class Player extends GameObject {
       }
     }
 
+    // cheat code
+    if (this.input_key.isDown(SHIFT_KEY) && this.input_key.isDown(C_KEY)) {
+      this.mapCount = 1000;
+      this.jumpCount = 100;
+    }
+
+    // gravity
     if (!this.input_key.isDown(SHIFT_KEY)) {
       this.y_speed -= (9.8 / 120);
     }
     currentPos.y += this.y_speed;
     this.updatePos(currentPos);
 
+    // map count
     if (this.mapCount > 0) {
       this.mapCount--;
     }
